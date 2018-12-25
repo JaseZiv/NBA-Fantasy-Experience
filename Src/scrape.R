@@ -4,29 +4,18 @@ library(rvest)
 library(lubridate)
 
 
-og_webpage <- read_html("https://www.basketball-reference.com/players/a/anunoog01/gamelog/2019")
-
-
-og_table <- html_table(og_webpage, ".table_outer_container", header = T, fill = T) %>% data.frame() %>% select(15:44) %>% filter(Rk != "Rk")
-
-player_name <- html_nodes(og_webpage, "h1") %>%  html_text()
-
-
-
-
 #---------- For the whole table of information ----------#
 
 html1 <- "https://www.basketball-reference.com/players/"
 
 surname_initial <- letters
 players_temp_ref <- c()
-active_players_temp <- c()
 active_players_temp_ref <- c()
-active_players <- c()
-full_table <- data.frame(Player = as.character(), From = as.character(), To = as.character(), Pos = as.character(), Ht = as.character(),
+player_information <- data.frame(Player = as.character(), From = as.character(), To = as.character(), Pos = as.character(), Ht = as.character(),
                          Wt = as.character(), Birth.Date = as.character(), Colleges = as.character(), PlayerId = as.character())
 
 i <- NULL
+
 for(i in 1:length(surname_initial)) {
   
   tryCatch(test <- read_html(paste0(html1, surname_initial[i], "/")), error = function(e) { test <- NA })
@@ -39,27 +28,72 @@ for(i in 1:length(surname_initial)) {
   
   test1 <- test1 %>% filter(PlayerId %in% active_players_temp_ref)
   
-  
-  
-  
-  full_table <- rbind(full_table, test1)
+  player_information <- rbind(player_information, test1)
   
 }
 
 
 
+#---------- Scraper to get each player's game log ----------#
+
+main_url <- "https://www.basketball-reference.com"
+player_urls <- player_information$PlayerId %>% str_remove(".html")
+
+year_log <- "/gamelog/2019"
+
+full_urls <- paste0(main_url, player_urls, year_log)
+
+j <- NA
+player_table <- NA
+
+player_table <- data.frame(Rk = as.character(), G = as.character(), Date = as.character(), Age= as.character(), Tm = as.character(), X. = as.character(),
+                            Opp = as.character(), X..1 = as.character(), GS = as.character(), MP = as.character(),  FG = as.character(), FGA = as.character(),
+                            FG. = as.character(), X3P = as.character(), X3PA = as.character(), X3P. = as.character(), FT = as.character(),
+                            FTA = as.character(), FT. = as.character(), ORB = as.character(), DRB = as.character(), TRB = as.character(), AST = as.character(),
+                            STL = as.character(), BLK = as.character(), TOV = as.character(), PF = as.character(), PTS = as.character(),  GmSc = as.character(),
+                            X... = as.character())
+
+full_game_log <- data.frame(Rk = as.character(), G = as.character(), Date = as.character(), Age= as.character(), Tm = as.character(), X. = as.character(),
+                            Opp = as.character(), X..1 = as.character(), GS = as.character(), MP = as.character(),  FG = as.character(), FGA = as.character(),
+                            FG. = as.character(), X3P = as.character(), X3PA = as.character(), X3P. = as.character(), FT = as.character(),
+                            FTA = as.character(), FT. = as.character(), ORB = as.character(), DRB = as.character(), TRB = as.character(), AST = as.character(),
+                            STL = as.character(), BLK = as.character(), TOV = as.character(), PF = as.character(), PTS = as.character(),  GmSc = as.character(),
+                            X... = as.character(), PlayerName = as.character(), PlayerId = as.character())
+
+
+output <- data.frame(Rk = as.character(), G = as.character(), Date = as.character(), Age= as.character(), Tm = as.character(), X. = as.character(),
+                            Opp = as.character(), X..1 = as.character(), GS = as.character(), MP = as.character(),  FG = as.character(), FGA = as.character(),
+                            FG. = as.character(), X3P = as.character(), X3PA = as.character(), X3P. = as.character(), FT = as.character(),
+                            FTA = as.character(), FT. = as.character(), ORB = as.character(), DRB = as.character(), TRB = as.character(), AST = as.character(),
+                            STL = as.character(), BLK = as.character(), TOV = as.character(), PF = as.character(), PTS = as.character(),  GmSc = as.character(),
+                            X... = as.character(), PlayerName = as.character(), PlayerId = as.character())
+
+
+# the below scrape took ~ 22 minutes to complete
+
+start_time <- Sys.time()
+
+for(j in player_urls) {
+  
+  each_url <- read_html(paste0(main_url, j, year_log))
+  
+  tryCatch(player_table <- html_table(each_url, ".table_outer_container", header = T, fill = T)[8] %>% data.frame() %>% select(1:30) %>% filter(Rk != "Rk"), error = function(e) { player_table <- NA })
+  tryCatch(PlayerName <- html_nodes(each_url, "h1") %>%  html_text(), error = function(e) { PlayerName <- NA })
+  tryCatch(PlayerId <- j, error = function(e) { PlayerId <- NA })
+  
+  tryCatch(output <- cbind(player_table, PlayerName, PlayerId), error = function(e) { player_table <- NA })
+  
+  tryCatch(full_game_log <- bind_rows(full_game_log, output), error = function(e) { full_game_log <- NA })
+  
+}
+
+(end_time <- Sys.time() - start_time)
 
 
 
-
-
-
-
-
-
-
-
-
+# Save Data files for building the app
+saveRDS(player_information, "Data/Raw/player-information.rds")
+saveRDS(full_game_log, "Data/Raw/full_game_log.rds")
 
 
 
