@@ -75,7 +75,7 @@ joined <- player_information %>%
   left_join(season_stats, by = "PlayerId")
 
 # save data for inout to the app
-saveRDS(joined, "Data/Analysis/PlayerSummaryStats.rds")
+saveRDS(joined, "app/data/PlayerSummaryStats.rds")
 
 
 
