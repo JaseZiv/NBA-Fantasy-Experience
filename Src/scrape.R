@@ -32,7 +32,8 @@ for(i in 1:length(surname_initial)) {
   
 }
 
-
+player_information <- player_information %>%
+  filter(To == 2019)
 
 #---------- Scraper to get each player's game log ----------#
 
