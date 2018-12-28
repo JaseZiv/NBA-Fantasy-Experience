@@ -47,13 +47,13 @@ season_stats <- full_game_log %>%
   group_by(PlayerId, PlayerName) %>%
   summarise(TeamGames = n(),
             GP = sum(PlayOrNot == "Played", na.rm = T),
-            AvgMinutes = mean(Minutes, na.rm = T),
-            AvgPoints = mean(PTS, na.rm = T),
-            Avg3PM = mean(FGM3, na.rm = T),
-            AvgREB = mean(TRB, na.rm = T),
-            AvgAST = mean(AST, na.rm = T),
-            AvgSTL = mean(STL, na.rm = T),
-            AvgBLK = mean(BLK, na.rm = T)) %>%
+            AvgMinutes = round(mean(Minutes, na.rm = T),2),
+            AvgPoints = round(mean(PTS, na.rm = T),2),
+            Avg3PM = round(mean(FGM3, na.rm = T),2),
+            AvgREB = round(mean(TRB, na.rm = T),2),
+            AvgAST = round(mean(AST, na.rm = T),2),
+            AvgSTL = round(mean(STL, na.rm = T),2),
+            AvgBLK = round(mean(BLK, na.rm = T),2)) %>%
   ungroup() %>%
   mutate_if(is.character, str_squish)
 
