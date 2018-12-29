@@ -53,7 +53,8 @@ season_stats <- full_game_log %>%
             AvgREB = round(mean(TRB, na.rm = T),2),
             AvgAST = round(mean(AST, na.rm = T),2),
             AvgSTL = round(mean(STL, na.rm = T),2),
-            AvgBLK = round(mean(BLK, na.rm = T),2)) %>%
+            AvgBLK = round(mean(BLK, na.rm = T),2),
+            AvgScore = round(mean(GameScore, na.rm = T), 2)) %>%
   ungroup() %>%
   mutate_if(is.character, str_squish)
 

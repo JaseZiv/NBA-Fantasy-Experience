@@ -13,7 +13,7 @@ full_game_log <- readRDS("data/FullGameLog.rds")
 PlayerSummaryStats <- readRDS("data/PlayerSummaryStats.rds")
 max_exp <- max(PlayerSummaryStats$Experience)
 
-stats_of_interest <- c("Minutes", "FGM3", "TRB", "AST", "STL", "BLK", "PTS")
+stats_of_interest <- c("Minutes", "FGM3", "TRB", "AST", "STL", "BLK", "PTS", "GameScore")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -34,6 +34,7 @@ ui <- fluidPage(
                    label = "Player Name",
                    value = ""),
          
+        
          selectInput(inputId = "stat",
                      label = "Stat to analyse",
                      choices = stats_of_interest)
@@ -52,14 +53,17 @@ server <- function(input, output) {
    
   output$lineplot <- renderPlot({
     full_game_log %>% filter(str_trim(PlayerName) == input$name) %>%
-      ggplot(aes(x= as.numeric(Rk), group = 1)) + geom_line(aes_string(, y= input$stat))
+      ggplot(aes(x= as.numeric(Rk), group = 1)) + 
+      geom_line(aes_string(, y= input$stat), color = "midnightblue", size = 1) +
+      theme_minimal() +
+      labs(x = "Game")
   })
   
   
   # Create data table
   output$stats_table <- DT::renderDataTable({
     PlayerSummaryStats_exp <- PlayerSummaryStats %>%
-      filter(Experience %in% input$experience)
+      filter(Experience <= input$experience)
     DT::datatable(data = PlayerSummaryStats_exp, 
                   options = list(pageLength = 10), 
                   rownames = FALSE)
