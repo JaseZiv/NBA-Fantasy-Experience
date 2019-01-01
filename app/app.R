@@ -15,6 +15,7 @@ library(lubridate)
 full_game_log <- readRDS("data/FullGameLog.rds")
 PlayerSummaryStats <- readRDS("data/PlayerSummaryStats.rds")
 max_exp <- max(PlayerSummaryStats$Experience)
+player_names <- unique((PlayerSummaryStats$Player))
 
 stats_of_interest <- c("Minutes", "FGM3", "TRB", "AST", "STL", "BLK", "PTS", "GameScore")
 
@@ -59,7 +60,7 @@ server <- function(input, output) {
       ggplot(aes(x= as.numeric(Rk), group = 1)) + 
       geom_line(aes_string(, y= input$stat), color = "midnightblue", size = 1) +
       theme_minimal() +
-      labs(x = "Game")
+      labs(x = "Game", title = paste(input$name, input$stat, "per game", sep = " "))
   })
   
   
