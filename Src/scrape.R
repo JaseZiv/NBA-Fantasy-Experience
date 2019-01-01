@@ -33,7 +33,8 @@ for(i in 1:length(surname_initial)) {
 }
 
 player_information <- player_information %>%
-  filter(To == 2019)
+  filter(To == 2019) %>%
+  distinct(.keep_all = T)
 
 #---------- Scraper to get each player's game log ----------#
 
