@@ -1,3 +1,4 @@
+# Load Libraries
 library(tidyverse)
 library(httr)
 library(rvest)
@@ -97,5 +98,5 @@ for(j in player_urls) {
 saveRDS(player_information, "Data/Raw/player-information.rds")
 saveRDS(full_game_log, "Data/Raw/full_game_log.rds")
 
-
+rm(list = ls());gc()
 
