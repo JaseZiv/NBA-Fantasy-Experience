@@ -79,7 +79,7 @@ joined <- player_information %>%
 saveRDS(joined, "app/data/PlayerSummaryStats.rds")
 saveRDS(full_game_log, "app/data/FullGameLog.rds")
 
-
+rm(list = ls()); gc()
 
 
 
