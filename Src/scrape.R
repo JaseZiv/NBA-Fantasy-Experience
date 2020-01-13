@@ -13,7 +13,7 @@ surname_initial <- letters
 players_temp_ref <- c()
 active_players_temp_ref <- c()
 player_information <- data.frame(Player = as.character(), From = as.character(), To = as.character(), Pos = as.character(), Ht = as.character(),
-                         Wt = as.character(), Birth.Date = as.character(), Colleges = as.character(), PlayerId = as.character())
+                                 Wt = as.character(), Birth.Date = as.character(), Colleges = as.character(), PlayerId = as.character())
 
 i <- NULL
 
@@ -34,7 +34,7 @@ for(i in 1:length(surname_initial)) {
 }
 
 player_information <- player_information %>%
-  filter(To == 2019) %>%
+  filter(To == 2020) %>%
   distinct(.keep_all = T)
 
 #---------- Scraper to get each player's game log ----------#
@@ -42,7 +42,7 @@ player_information <- player_information %>%
 main_url <- "https://www.basketball-reference.com"
 player_urls <- player_information$PlayerId %>% str_remove(".html")
 
-year_log <- "/gamelog/2019"
+year_log <- "/gamelog/2020"
 
 full_urls <- paste0(main_url, player_urls, year_log)
 
@@ -50,11 +50,11 @@ j <- NA
 player_table <- NA
 
 player_table <- data.frame(Rk = as.character(), G = as.character(), Date = as.character(), Age= as.character(), Tm = as.character(), X. = as.character(),
-                            Opp = as.character(), X..1 = as.character(), GS = as.character(), MP = as.character(),  FG = as.character(), FGA = as.character(),
-                            FG. = as.character(), X3P = as.character(), X3PA = as.character(), X3P. = as.character(), FT = as.character(),
-                            FTA = as.character(), FT. = as.character(), ORB = as.character(), DRB = as.character(), TRB = as.character(), AST = as.character(),
-                            STL = as.character(), BLK = as.character(), TOV = as.character(), PF = as.character(), PTS = as.character(),  GmSc = as.character(),
-                            X... = as.character())
+                           Opp = as.character(), X..1 = as.character(), GS = as.character(), MP = as.character(),  FG = as.character(), FGA = as.character(),
+                           FG. = as.character(), X3P = as.character(), X3PA = as.character(), X3P. = as.character(), FT = as.character(),
+                           FTA = as.character(), FT. = as.character(), ORB = as.character(), DRB = as.character(), TRB = as.character(), AST = as.character(),
+                           STL = as.character(), BLK = as.character(), TOV = as.character(), PF = as.character(), PTS = as.character(),  GmSc = as.character(),
+                           X... = as.character())
 
 full_game_log <- data.frame(Rk = as.character(), G = as.character(), Date = as.character(), Age= as.character(), Tm = as.character(), X. = as.character(),
                             Opp = as.character(), X..1 = as.character(), GS = as.character(), MP = as.character(),  FG = as.character(), FGA = as.character(),
@@ -65,11 +65,11 @@ full_game_log <- data.frame(Rk = as.character(), G = as.character(), Date = as.c
 
 
 output <- data.frame(Rk = as.character(), G = as.character(), Date = as.character(), Age= as.character(), Tm = as.character(), X. = as.character(),
-                            Opp = as.character(), X..1 = as.character(), GS = as.character(), MP = as.character(),  FG = as.character(), FGA = as.character(),
-                            FG. = as.character(), X3P = as.character(), X3PA = as.character(), X3P. = as.character(), FT = as.character(),
-                            FTA = as.character(), FT. = as.character(), ORB = as.character(), DRB = as.character(), TRB = as.character(), AST = as.character(),
-                            STL = as.character(), BLK = as.character(), TOV = as.character(), PF = as.character(), PTS = as.character(),  GmSc = as.character(),
-                            X... = as.character(), PlayerName = as.character(), PlayerId = as.character())
+                     Opp = as.character(), X..1 = as.character(), GS = as.character(), MP = as.character(),  FG = as.character(), FGA = as.character(),
+                     FG. = as.character(), X3P = as.character(), X3PA = as.character(), X3P. = as.character(), FT = as.character(),
+                     FTA = as.character(), FT. = as.character(), ORB = as.character(), DRB = as.character(), TRB = as.character(), AST = as.character(),
+                     STL = as.character(), BLK = as.character(), TOV = as.character(), PF = as.character(), PTS = as.character(),  GmSc = as.character(),
+                     X... = as.character(), PlayerName = as.character(), PlayerId = as.character())
 
 
 # the below scrape took ~ 22 minutes to complete
@@ -77,17 +77,17 @@ output <- data.frame(Rk = as.character(), G = as.character(), Date = as.characte
 start_time <- Sys.time()
 
 for(j in player_urls) {
-  
-  each_url <- read_html(paste0(main_url, j, year_log))
-  
-  tryCatch(player_table <- html_table(each_url, ".table_outer_container", header = T, fill = T)[8] %>% data.frame() %>% select(1:30) %>% filter(Rk != "Rk"), error = function(e) { player_table <- NA })
-  tryCatch(PlayerName <- html_nodes(each_url, "h1") %>%  html_text(), error = function(e) { PlayerName <- NA })
-  tryCatch(PlayerId <- j, error = function(e) { PlayerId <- NA })
-  
-  tryCatch(output <- cbind(player_table, PlayerName, PlayerId), error = function(e) { player_table <- NA })
-  
-  tryCatch(full_game_log <- bind_rows(full_game_log, output), error = function(e) { full_game_log <- NA })
-  
+  try({
+    each_url <- read_html(paste0(main_url, j, year_log))
+    
+    player_table <- html_table(each_url, ".table_outer_container", header = T, fill = T)[8] %>% data.frame() %>% select(1:30) %>% filter(Rk != "Rk")
+    PlayerName <- html_nodes(each_url, "h1") %>%  html_text()
+    PlayerId <- j
+    
+    output <- cbind(player_table, PlayerName, PlayerId)
+    
+    full_game_log <- bind_rows(full_game_log, output)
+  }, silent = TRUE)
 }
 
 (end_time <- Sys.time() - start_time)
@@ -99,4 +99,3 @@ saveRDS(player_information, "Data/Raw/player-information.rds")
 saveRDS(full_game_log, "Data/Raw/full_game_log.rds")
 
 rm(list = ls());gc()
-

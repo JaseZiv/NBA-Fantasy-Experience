@@ -66,7 +66,7 @@ head(season_stats)
 player_information$PlayerId <- str_remove(player_information$PlayerId, ".html")
 
 player_information <- player_information %>%
-  mutate(Experience = 2019 - From)
+  mutate(Experience = 2020 - From)
 
 
 head(player_information)
